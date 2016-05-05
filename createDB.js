@@ -9,7 +9,7 @@ async.series([
     dropDatabase,
     requireModels,
     createUsers,
-    createSeries
+    createContentTEST//createSeries
 ], function (err) {
     console.log(arguments);    
     mongoose.disconnect();
@@ -28,7 +28,8 @@ function dropDatabase(callback) {
 
 function requireModels(callback) {
     require('models/user');
-    require('models/series');
+    require('models/content/series');
+    require('models/content/contentBase');
     // проходим по всем моделям и для каждой из них вызвать ensureIndexes
     // гарантирует как только все индексы будут созданы вызоветься callback
     async.each(Object.keys(mongoose.models), function (modelName, callback) {
@@ -37,7 +38,6 @@ function requireModels(callback) {
 }
 
 function createUsers(callback) {
-
 
     var users = [
         {nick: 'Пауль', password: '123', email: 'shark@ukr.net'},
@@ -52,7 +52,6 @@ function createUsers(callback) {
 }
 
 function createSeries(callback) {
-    console.log('111111111111111111111111111');
     var series = [
         {url: 'https://www.lostfilm.tv/browse.php?cat=225', name: 'Gotham', contentType: 'series'},
         {url: 'https://www.lostfilm.tv/browse.php?cat=65', name: 'Supernatural', contentType: 'series'}
@@ -69,5 +68,19 @@ function createSeries(callback) {
         //series.users.push(user2);
 
         series.save(callback);
+    }, callback);
+}
+
+
+function createContentTEST(callback) {
+    var content = [
+        {name: 'content1'},
+        {name: 'content2'}
+    ];
+
+    async.each(content, function (data, callback) {
+        var content = new mongoose.models.Content(data);
+
+        content.save(callback);
     }, callback);
 }
