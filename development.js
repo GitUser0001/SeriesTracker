@@ -48,9 +48,7 @@ function testParser() {
 
 
 
-
-
-var Content = require('models/content/contentBase').Content;
+var SeriesLostFilm = require('models/content/series').SeriesLostFilm;
 function testDB(){
     var User = require('models/user').User;
     var Series = require('models/content/series').Series;
@@ -63,13 +61,12 @@ function testDB(){
 
 
 
-    User.findOne({email: 'shark@ukr.net'}, function (err, result) {
+    User.findOne({email: 'v123@ukr.net'}, function (err, result) {
         if (err) throw err;
         var user = result;
-        //console.log(user);
         console.log('\n------------------\n');
 
-        Content.findOne({name: 'content1'}, function (err, result) {
+        SeriesLostFilm.findOne({name: 'Gotham'}, function (err, result) {
             if (err) throw err;
             console.log(result);
             console.log('\n------------------\n');
@@ -77,7 +74,17 @@ function testDB(){
 
             result.addUserById(user._id);
 
-            result.url = "changed 123";
+            result.addSeason({
+                seasonNumber: 1,
+                seriesCount: 10,
+                series: [{
+                    seriesNumber: 1,
+                    seriesName: 'ololo 1'
+                },{
+                    seriesNumber: 2,
+                    seriesName: 2
+                }]
+            });
 
             result.save();
 
@@ -126,8 +133,8 @@ testDB();
 
 setTimeout(function () {
     console.log('\n------------------\n');
-    Content.find({}, function (err, res) {
-        console.log(res[0].users);
+    SeriesLostFilm.find({}, function (err, res) {
+        console.log(res[0]);
         mongoose.disconnect();
     });
 

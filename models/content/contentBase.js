@@ -4,32 +4,44 @@ var mongoose = require('lib/mongoose'),
 var User = require('models/user').User;
 
 /*
-Content.find({})
-    .populate('users.id')
-    .exec(function(error, content) {
-        console.log(JSON.stringify(content, null, "\t"))
-    });
-*/
+ Content.find({})
+ .populate('users.id')
+ .exec(function(error, content) {
+ console.log(JSON.stringify(content, null, "\t"))
+ });
+ */
 
-var schema = new Schema({
+var baseContent = {
     users: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }],
-    name:{
+    url:{
         type: String,
-        default: 'someDefaultName'               
+        trim: true,
+        unique: true,
+        required: true,
+        match: [/https?:\/\/.*/, 'Please fill a valid url address']
     },
-    url: {
-        type: String,
-        default: "def"
+    description:{
+        type:String,
+        required: true,
+        default: "Some default information"
     }
-});
+};
+
+
+module.exports = { schemaName: 'Content', baseProperties: baseContent};
+
+
+/*
+
+var schema = new Schema(obj);
 
 schema.methods.addUserById = function (id) {
     
     this.users.addToSet(id);
-    
+/*
     /*
     mongoose.models.Content.update(
         {_id: this._id},
@@ -38,7 +50,13 @@ schema.methods.addUserById = function (id) {
             if (err) throw err;
         });
      */
+/*
 };
+
+schema.methods.getObj = function () {
+    return obj
+};
+
 
 schema.methods.deleteUserById = function (id) {
     this.users.delete(id);
@@ -46,3 +64,4 @@ schema.methods.deleteUserById = function (id) {
 
 exports.Content = mongoose.model('Content', schema);
 
+*/

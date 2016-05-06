@@ -9,7 +9,7 @@ async.series([
     dropDatabase,
     requireModels,
     createUsers,
-    createContentTEST//createSeries
+    createSeries//createContentTEST
 ], function (err) {
     console.log(arguments);    
     mongoose.disconnect();
@@ -53,12 +53,12 @@ function createUsers(callback) {
 
 function createSeries(callback) {
     var series = [
-        {url: 'https://www.lostfilm.tv/browse.php?cat=225', name: 'Gotham', contentType: 'series'},
-        {url: 'https://www.lostfilm.tv/browse.php?cat=65', name: 'Supernatural', contentType: 'series'}
+        {url: 'https://www.lostfilm.tv/browse.php?cat=225', name: 'Gotham'},
+        {url: 'https://www.lostfilm.tv/browse.php?cat=65', name: 'Supernatural'}
     ];
 
     async.each(series, function (seriesData, callback) {
-        var series = new mongoose.models.Series(seriesData);
+        var series = new mongoose.models.SeriesLostFilm(seriesData);
 
         //var user1 = new mongoose.models.User({nick: 'Dan', password: '1', email: 'lola@ukr.net'});
         //var user2 = new mongoose.models.User({nick: 'Dan', password: '1', email: 'lola@ukr.net'});
