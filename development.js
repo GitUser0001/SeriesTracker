@@ -68,12 +68,16 @@ function testDB(){
 
         SeriesLostFilm.findOne({name: 'Gotham'}, function (err, result) {
             if (err) throw err;
-            console.log(result);
+            //console.log(result);
             console.log('\n------------------\n');
 
 
             result.addUserById(user._id);
 
+            //result.users.push(user._id);
+
+
+            //result.seasons.push({
             result.addSeason({
                 seasonNumber: 1,
                 seriesCount: 10,
@@ -81,12 +85,15 @@ function testDB(){
                     seriesNumber: 1,
                     seriesName: 'ololo 1'
                 },{
-                    seriesNumber: 2,
-                    seriesName: 2
+                    seriesNumber: 1,
+                    seriesName: 'lola'
                 }]
             });
 
-            result.save();
+
+            result.save(function (err) {
+                if (err) throw err;
+            });
 
             /*
             var a = result;
@@ -135,10 +142,12 @@ setTimeout(function () {
     console.log('\n------------------\n');
     SeriesLostFilm.find({}, function (err, res) {
         console.log(res[0]);
+        console.log("\n For login");
+        console.log((new SeriesLostFilm).getLoginAndPassword());
         mongoose.disconnect();
     });
 
-},3000);
+},1000);
 
 
 

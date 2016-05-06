@@ -71,16 +71,3 @@ function createSeries(callback) {
     }, callback);
 }
 
-
-function createContentTEST(callback) {
-    var content = [
-        {name: 'content1'},
-        {name: 'content2'}
-    ];
-
-    async.each(content, function (data, callback) {
-        var content = new mongoose.models.Content(data);
-
-        content.save(callback);
-    }, callback);
-}

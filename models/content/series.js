@@ -84,7 +84,7 @@ SeriesLostFilmSchema.methods.addUserById = function (id) {
 
 SeriesLostFilmSchema.methods.addSeason = function (season) {
     var uniques = [];
-    for (var i in this.seasons){
+    for (var i=0; i < this.seasons.length; i++){
         uniques.push(this.seasons[i].seasonNumber);
     }
 
@@ -94,14 +94,90 @@ SeriesLostFilmSchema.methods.addSeason = function (season) {
 
 };
 
+function isUnique(arrayToCheck) {
+    if (arrayToCheck.length === 0) {
+        return true;
+    }
+    
+    var uniques = [];
+
+    for (var i = 0; i < arrayToCheck.length; i++){
+        var contains = false;
+        for (var j = 0; j < uniques.length; j++){
+            if (uniques[j].toString() === arrayToCheck[i].toString()) {
+                contains = true;
+                break;
+            }
+        }
+
+        if (!contains) uniques.push(arrayToCheck[i]);
+    }
+
+    return uniques.length === arrayToCheck.length;
+}
+
+
+SeriesLostFilmSchema.pre('save', function (next) {
+
+    var seasons = [];
+    //var seriesInSeasonNumbers = [];
+    //var seriesInSeasonNames = [];
+    for (var i in this.seasons){
+        seasons.push(this.seasons[i].seasonNumber.toString());
+        /*
+        var seriesInCurrentSeasonNumbers = [];
+        var seriesInCurrentSeasonNames = [];
+        for (var j in this.seasons[i].series){
+            seriesInCurrentSeasonNumbers.push(this.seasons[i].series[j].seriesNumber);
+            seriesInCurrentSeasonNames.push(this.seasons[i].series[j].seriesName);
+            }
+        if (seriesInCurrentSeasonNumbers.length > 0) seriesInSeasonNumbers.push(seriesInCurrentSeasonNumbers);
+        if (seriesInCurrentSeasonNames.length > 0) seriesInSeasonNames.push(seriesInCurrentSeasonNames);
+        */
+    }
+
+
+    /*
+    var isSeasonsNamesCorrect = true;
+    for (var names in seriesInSeasonNames){
+        if (!isUnique(names)) {
+            isSeasonsNamesCorrect = false;
+            break;
+        }
+    }
+
+    var isSeasonsNumbersCorrect = true;
+    for (var numbers in seriesInSeasonNumbers){
+        if (!isUnique(numbers)) {
+            isSeasonsNumbersCorrect = false;
+            break;
+        }
+    }
+    */
+
+
+
+
+    if (isUnique(this.users) && isUnique(seasons)){// && isSeasonsNumbersCorrect && isSeasonsNamesCorrect){
+        next();
+    } else {
+        var err = new Error("some values are duplicated");
+        if (!isUnique(this.users)) { err = new Error("users are duplicated"); }
+        else if (!isUnique(seasons)) { err = new Error("seasons are duplicated"); }
+        next(err);
+    }
+});
+
+
+SeriesLostFilmSchema.methods.getLoginAndPassword = function () {
+    return { login: 'basicUser', password: '123456'};
+};
 
 exports.SeriesLostFilm = mongoose.model('SeriesLostFilm', SeriesLostFilmSchema, baseContent.schemaName);
 
-/*
-SeriesLostFilm.methods.getLoginAndPassword = function () {
-    return { login: 'basicUser', password: '123456'};
-};
-*/
+
+
+
 
 //exports.SeriesLostFilm = mongoose.model('SeriesLostFilm', schema);
 
