@@ -135,33 +135,16 @@ function testDB(){
     });
 }
 
-log.info("Finished");
 
 
-var password = 'd6F3Efeq';
-
-parser.getUpdates('lostfilm',2, function (err, res) {
-    if (err) throw err;
+parser.getSeriesList('lostfilm',function (err, res) {
+   if (err)  throw err;
 
     console.log(res);
-    console.log('\n ------');
-
-    var enc = crypto.encryptNoIv(JSON.stringify(res), password);
-
-    console.log(enc);
-    console.log('\n ------');
-
-    var dec = crypto.decryptNoIv(enc, password);
-
-    setTimeout(function () {
-        console.log(JSON.parse(dec));
-        console.log('\n ------');
-    },200);
-
 });
 
 mongoose.disconnect();
-
+log.info("Finished");
 /*
 testDB();
 

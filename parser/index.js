@@ -23,6 +23,18 @@ function getUpdates(siteName, resSize, callback) {
     }
 }
 
+function getSeriesList(siteName, callback) {
+
+    if (siteName.match(regExpLostFilmRoot))
+    {
+        lostFilmParser.getSeriesList(function (err, result) {
+            callback(err, result);
+        });
+    }
+}
+
+
+exports.getSeriesList = getSeriesList;
 exports.getUpdates = getUpdates;
 exports.parse = parse;
 

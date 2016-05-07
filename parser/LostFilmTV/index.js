@@ -7,9 +7,11 @@ const rootUrl = "https://www.lostfilm.tv";
 
 var regExpSeriesInfoSite = /https:\/\/www\.lostfilm\.tv\/browse\.php\?cat=\d{1,4}/i;
 var regExpSeriesUpdateListSite = /https:\/\/www\.lostfilm\.tv\/browse\.php(?:\?o=(?:\d{1,5}))?/i;
+var regExpSeriesListSite = /https:\/\/www\.lostfilm\.tv\/serials\.php/;
 
 var regExpSeriesInfo = /<h1>(.*)<\/.*\s*<img.*src="(.*?\.\w*)[^а-я]*(.*)[^а-я]*(.*)[^а-я]*(.*)[^а-я]*(.*)[^а-я]*(.*)[^а-я]*(.*)[^а-я]*(.*)[^а-я]*(.*)[^]*?<span>([^]*?<\/span>)/ig;
 var regExpSeriesUpdateList = /v.*?">\s*(\d*\.\d*)[^]*?\d">([^]*?)<[^]*?f="(.*?)".*?c="([^]*?)"[^]*?<b>([^]*?)<[^]*?.*\s*(.*?)(з.*)/ig;
+var regExpSeriesList = /<a.*?"(\/b.*?t=\d{1,5})".*?>(.*)/g;
 
 var regExpRemoveTags = /<[^]*?>/ig;
 var regExpRemoveComments = /<!--[^]*?-->/ig;
@@ -79,6 +81,50 @@ function createSeriesUpdateListJSON(body) {
     return res;
 }
 
+function createSeriesListJSON(body) {
+    var res = [];
+    
+    body = removeComments(body);
+    body = body.split('Полный список сериалов')[1];
+
+    var match;
+
+    while (match = regExpSeriesUpdateList.exec(tmp)) {
+        match = removeTags(match);
+
+        res.push({
+            seriesLink: rootUrl + match[1],
+            seriesName: match[2]
+        });
+    }
+}
+//<a.*?"(\/b.*?t=\d{1,5})".*?>(.*)
+function getSeriesList(callback) {
+    const staticUrl = 'https://www.lostfilm.tv/serials.php';
+
+    var res = [];
+
+    https.get(staticUrl, function (err, body) {
+        if (err) { callback(err); return; }
+        body = removeComments(body);
+        body = body.split('Полный список сериалов')[1];
+
+        var match;
+
+        while (match = regExpSeriesList.exec(body)) {
+            match = removeTags(match);
+
+            res.push({
+                seriesLink: rootUrl + match[1],
+                seriesName: match[2]
+            });
+        }
+        
+        callback(null, res);
+    });
+
+}
+
 function getUpdatePageLink(pageNumber) {
     const staticUrl = 'https://www.lostfilm.tv/browse.php?o=';
 
@@ -102,7 +148,9 @@ function parse(uri, callback) {
             res = createSeriesBaseInfoJSON(body);
         } else if (uri.match(regExpSeriesUpdateListSite)) {
             res = createSeriesUpdateListJSON(body);
-        } else {
+        } else if (uri.match(regExpSeriesListSite)){
+            res = createSeriesListJSON(body);
+        } else{
             callback("uri doesn't match")
         }
 
@@ -154,5 +202,7 @@ function getUpdates(resSize, callback) {
 exports.parse = parse;
 
 exports.getUpdates = getUpdates;
+
+exports.getSeriesList = getSeriesList;
 
 
