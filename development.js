@@ -4,6 +4,8 @@ var log = require('lib/log')(module),
 var mongoose = require('lib/mongoose');
 var async = require('async');
 
+var crypto = require('myCrypto');
+
 log.info("Started");
 
 function testParser() {
@@ -46,13 +48,13 @@ function testParser() {
 
 }
 
+//testParser();
 
-
-var SeriesLostFilm = require('models/content/series').SeriesLostFilm;
+var SeriesLostFilm;
 function testDB(){
     var User = require('models/user').User;
     var Series = require('models/content/series').Series;
-
+    SeriesLostFilm = require('models/content/series').SeriesLostFilm;
 
 
     var user1 = new User({nick: 'Dan', password: '1', email: 'lola@ukr.net'});
@@ -133,9 +135,34 @@ function testDB(){
     });
 }
 
+log.info("Finished");
 
 
+var password = 'd6F3Efeq';
 
+parser.getUpdates('lostfilm',2, function (err, res) {
+    if (err) throw err;
+
+    console.log(res);
+    console.log('\n ------');
+
+    var enc = crypto.encryptNoIv(JSON.stringify(res), password);
+
+    console.log(enc);
+    console.log('\n ------');
+
+    var dec = crypto.decryptNoIv(enc, password);
+
+    setTimeout(function () {
+        console.log(JSON.parse(dec));
+        console.log('\n ------');
+    },200);
+
+});
+
+mongoose.disconnect();
+
+/*
 testDB();
 
 setTimeout(function () {
@@ -148,7 +175,7 @@ setTimeout(function () {
     });
 
 },1000);
-
+*/
 
 
 
