@@ -8,9 +8,11 @@ var mongoose = require('lib/mongoose'),
 var net = require('net'),
     JsonSocket = require('json-socket');
 
-var crypto = require('myCrypto');
+var accessControl = require('accessControl');
 
-var password = 'd6F3Efeq';
+
+
+var passwordKey = 'd6F3Efeq';
 
 
 
@@ -21,7 +23,7 @@ var clients = [];
 // Start a TCP Server
 net.createServer(function (socket) {
 
-    var jsonSocket = new JsonSocket(socket);
+    //var jsonSocket = new JsonSocket(socket);
 
     socket.name = socket.remoteAddress + ":" + socket.remotePort;
 
@@ -31,15 +33,21 @@ net.createServer(function (socket) {
     //socket.write("Welcome " + socket.name + "\n");
     //broadcast(socket.name + " joined the chat\n", socket);
 
-    parser.getUpdates('lostfilm',2, function (err, res) {
-        if (err) throw err;
-        socket.write(JSON.stringify(res));
+    setInterval(function () {
+        parser.getUpdates('lostfilm', 2, function (err, res) {
+            if (err) throw err;
+            console.log('send updates');
+            socket.write(JSON.stringify(res));
 
-        //socket.write(crypto.encryptBuf(JSON.stringify(res), password));
+            //socket.write(crypto.encryptBuf(JSON.stringify(res), password));
 
-        // можно и без него
-        //jsonSocket.sendEndMessage(res);
-    });
+            // можно и без него
+            //jsonSocket.sendEndMessage(res);
+
+        });
+    }, 10000);
+    
+
 
     socket.on('error', function () {
         console.log(arguments);
@@ -47,7 +55,19 @@ net.createServer(function (socket) {
 
 
     socket.on('data', function (data) {
-        broadcast(socket.name + "> " + data, socket);
+        var authData = accessControl.getAuthJson(data, passwordKey);
+
+        if (authData){
+            User.findOne({nick: authData.login}, function (err, user) {
+                if (err) throw err;
+                if (user && user.checkPassword(authData.password)) {
+                    console.log('connected user ' + user.nick);
+                    clients.push({login: user.nick, socket: socket});
+                } else {
+                    console.log('fail to connect user ' + data.auth.login)
+                }
+            })
+        }
     });
 
     socket.on('end', function () {
@@ -67,7 +87,7 @@ net.createServer(function (socket) {
 }).listen(5000, '192.168.0.100');
 
 function createUpdateList() {
-
+    
 }
 
 console.log("Chat server running at port 5000\n");

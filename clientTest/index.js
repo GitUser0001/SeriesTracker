@@ -1,22 +1,27 @@
 var crypto = require('../myCrypto');
-var password = 'd6F3Efeq';
+var passwordKey = 'd6F3Efeq';
 
 
-var net = require('net'),
-    JsonSocket = require('json-socket');
+var net = require('net');
+    //JsonSocket = require('json-socket');
+
+var accessControl = require('../accessControl');
+
 
 var HOST = '192.168.0.100';
 var PORT = 5000;
 
-var socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
+//var socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
+var socket = new net.Socket();
 socket.connect(PORT, HOST);
 socket.on('connect', function() { //Don't send until we're connected
-    socket.on('message', function(message) {
-        console.log('The result is:');
-        console.log(message);
-    });
+    
+    var login = 'Василиса',
+        password = 'qwerty';
+    
+    socket.write(accessControl.createAuthString('Василиса','qwerty',passwordKey));
+    
     socket.on('data', function(data) {
-
         console.log('DATA: ');
         console.log(JSON.parse(data));
     });
