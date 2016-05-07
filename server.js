@@ -90,4 +90,4 @@ function createUpdateList() {
     
 }
 
-console.log("Chat server running at port 5000\n");
+console.log("Tracker server running at port 5000\n");
