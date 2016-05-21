@@ -2,14 +2,46 @@ var crypto = require('../myCrypto');
 var passwordKey = 'd6F3Efeq';
 
 
-var net = require('net');
+var tls = require('tls');
     //JsonSocket = require('json-socket');
 
 var accessControl = require('../accessControl');
 
+var fs = require('fs');
+var path = require('path');
 
 var HOST = '192.168.0.100';
-var PORT = 5000;
+var PORT = 8000;
+
+
+var options = {
+    key : fs.readFileSync(path.join( __dirname, '../certificates/client/key.pem')),
+    cert : fs.readFileSync(path.join( __dirname, '../certificates/client/server.crt')),
+    rejectUnauthorized : false
+};
+
+
+var client = tls.connect(PORT, HOST, options, function () {
+    console.log(client.authorized ? 'Authorized' : 'Not authorized')
+});
+
+client.write(JSON.stringify({ command : 'get series info', url: 'https://www.lostfilm.tv/browse.php?cat=168'}));
+
+client.setEncoding('utf8');
+
+client.on('data', function(data) {
+    console.log(data);
+});
+
+client.on('end', function() {
+    client.close();
+});
+
+client.on('error', function (err) {
+    console.log(arguments);
+});
+
+/*
 
 //var socket = new JsonSocket(new net.Socket()); //Decorate a standard net.Socket with JsonSocket
 var socket = new net.Socket();

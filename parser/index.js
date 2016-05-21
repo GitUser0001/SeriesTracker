@@ -7,9 +7,7 @@ function parse(url, callback) {
 
     if (url.match(regExpLostFilmSite))
     {
-        lostFilmParser.parse(url, function (err, result) {
-            callback(err, result);
-        });
+        lostFilmParser.parse(url, callback);
     }
 }
 
@@ -17,9 +15,7 @@ function getUpdates(siteName, resSize, callback) {
 
     if (siteName.match(regExpLostFilmRoot))
     {
-        lostFilmParser.getUpdates(resSize, function (err, result) {
-            callback(err, result);
-        });
+        lostFilmParser.getUpdates(resSize, callback);
     }
 }
 
@@ -27,9 +23,7 @@ function getSeriesList(siteName, callback) {
 
     if (siteName.match(regExpLostFilmRoot))
     {
-        lostFilmParser.getSeriesList(function (err, result) {
-            callback(err, result);
-        });
+        lostFilmParser.getSeriesList(callback);
     }
 }
 

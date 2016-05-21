@@ -5,7 +5,7 @@ var https = require('lib/https');
 const rootUrl = "https://www.lostfilm.tv";
 
 
-var regExpSeriesInfoSite = /https:\/\/www\.lostfilm\.tv\/browse\.php\?cat=\d{1,4}/i;
+var regExpSeriesInfoSite = /https:\/\/www\.lostfilm\.tv\/browse\.php\?cat=_?\d{1,4}/i;
 var regExpSeriesUpdateListSite = /https:\/\/www\.lostfilm\.tv\/browse\.php(?:\?o=(?:\d{1,5}))?/i;
 var regExpSeriesListSite = /https:\/\/www\.lostfilm\.tv\/serials\.php/;
 
