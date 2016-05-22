@@ -37,7 +37,8 @@ function removeComments(body){
 function createSeriesBaseInfoJSON(body) {
     var res = regExpSeriesInfo.exec(body);
 
-    if (!res || res.length == 0) throw new Error("body not confirmed");
+    if (!res || res.length == 0)
+        throw new Error("body not confirmed");
 
     res = removeTags(res);
 
@@ -132,8 +133,6 @@ function getUpdatePageLink(pageNumber) {
 
     return staticUrl + (pageNumber * 15);
 }
-
-
 
 
 

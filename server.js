@@ -1,20 +1,18 @@
 var log = require('lib/log')(module),
+    tls = require('tls'),
+    fs = require('fs'),
+    path = require('path'),
+
+
+    mongoose = require('lib/mongoose'),
+    User = require('models/user').User,
+    SeriesLostFilm = require('models/content/series').SeriesLostFilm,
+
     parser = require('parser');
 
-var mongoose = require('lib/mongoose'),
-    User = require('models/user').User,
-    SeriesLostFilm = require('models/content/series').SeriesLostFilm;
-
-var net = require('net'),
-    JsonSocket = require('json-socket');
-
-var accessControl = require('accessControl');
 
 
-
-var tls = require('tls');
-var fs = require('fs');
-var path = require('path');
+var clients = [];
 
 var options = {
     key : fs.readFileSync(path.join( __dirname, 'certificates/server/key.pem')),
@@ -22,11 +20,8 @@ var options = {
     handshakeTimeout : 10
 };
 
-var passwordKey = 'd6F3Efeq';
 
 
-
-var clients = [];
 
 var server = tls.createServer(options, function (socket) {
     console.log('server connected', socket.authorized ? 'authorized' : 'unauthorized');
@@ -35,8 +30,6 @@ var server = tls.createServer(options, function (socket) {
     socket.pipe(socket);
 
     socket.name = socket.remoteAddress + ":" + socket.remotePort;
-
-    clients.push(socket);
 
 
 
@@ -67,14 +60,27 @@ var server = tls.createServer(options, function (socket) {
 
     socket.on('data', function (dataJSON) {
         var data = jsonTryParse(dataJSON);
-        
-        if (!data || !data.command) socket.write(JSON.stringify({error: 'incorrect json'}));
-        
-        executeRequestCommand(data, function(err, result){
-            if (err) throw new Error(err);
-            socket.write(JSON.stringify(result));
-        });
 
+        if (data && !contains(clients, socket)) {
+
+            checkCredentials(data, function (err, user) {
+                if (user) {
+                    clients.push({ login: user.nick, rights: user.rights, socket: socket });
+                } else {
+                    socket.write(JSON.stringify({error: 'incorrect login or password'}));
+                    socket.end();
+                }
+            });
+
+        } else {
+            if (!data || !data.command) socket.write(JSON.stringify({error: 'incorrect json'}));
+
+            executeRequestCommand(data, function(err, result){
+                socket.write(JSON.stringify(err || result));
+            });
+        }
+        
+        console.log('clients: ' + clients.length)
     });
 
 
@@ -106,10 +112,8 @@ var server = tls.createServer(options, function (socket) {
 
         console.log(arguments);
     });
-
-
-
-
+    
+    
 }).listen(8000, '192.168.0.100');
 
 
@@ -122,7 +126,6 @@ function broadcast(message, sender) {
     process.stdout.write(message)
 }
 
-
 function jsonTryParse(dataJson) {
     var data;
     try {
@@ -134,14 +137,74 @@ function jsonTryParse(dataJson) {
 
 function executeRequestCommand(data, callback) {
     switch (data.command.toLowerCase()) {
+
+        // PARSE WEB SITE
         case 'get series info':
             if (data.url){
                 parser.parse(data.url, callback);
-            }
+            } break;
+        case 'get updates':
+            if (data.siteName && data.count){
+                parser.getUpdates(data.siteName, data.count, callback);
+            } break;
+        case 'get all series':
+            if (data.siteName){
+                parser.getSeriesList(data.siteName, callback);
+            } break;
 
-    }    
+        // WORK WITH USER
+        case 'add series to user':
+            if (data.url) {
+                // not implement
+            } break;
+        case 'remove series from user':
+            if (data.url) {
+                // not implement
+            } break;
+        case 'get user\'s favorite list':
+            // not implement
+            break;
+
+        // WORK WITH SERIES
+        case 'add/update series in db':
+            // not implement
+            break;
+        case 'get all series from db':
+            // not implement
+            break;
+
+        default:
+            callback('bad command');
+    }
 }
 
+function checkCredentials(userData, callback) {
+    if (userData.login && userData.password) {
+        User.findOne({nick: userData.login}, function (err, user) {
+            if (err) callback(err);
+            if (user && user.checkPassword(userData.password)) {
+                console.log('connected user ' + user.nick);
+                callback(null, user);
+            } else {
+                console.log('fail to connect user ' + userData.login);
+                callback();
+            }
+        })
+    }
+}
+
+function contains(clientArray, socket) {
+
+    for (var i=0; i < clientArray.length; i++){
+        if (clientArray[i].socket === socket) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+/*
 setInterval(function () {
     parser.getUpdates('lostfilm', 2, function (err, res) {
         if (err) throw err;
@@ -150,7 +213,7 @@ setInterval(function () {
         clients.forEach(function (element, index, array) {
             if (!array[index].isOpen)
             array[index].write(JSON.stringify(res));
-        });
+        });        
 
         //socket.write(crypto.encryptBuf(JSON.stringify(res), password));
 
@@ -159,6 +222,8 @@ setInterval(function () {
 
     });
 }, 10000);
+*/
+
 
 /*
 

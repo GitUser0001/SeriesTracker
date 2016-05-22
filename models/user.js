@@ -29,6 +29,10 @@ var schema = new Schema({
     created: {
         type: Date,
         default: Date.now
+    },
+    rights: {
+        type: String,
+        default: 'basic'
     }
 });
 
