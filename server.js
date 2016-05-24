@@ -135,7 +135,7 @@ function jsonTryParse(dataJson) {
     }
 }
 
-function executeRequestCommand(data, callback) {
+function executeRequestCommand(data, callback) { 
     switch (data.command.toLowerCase()) {
 
         // PARSE WEB SITE
