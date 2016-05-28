@@ -40,26 +40,24 @@ client.on('error', function (err) {
 });
 
 
-client.write(JSON.stringify({login: 'Василиса', password: 'qwerty'}));
-
 // REQUESTS TO SERVER
 
 setTimeout(function () {
     client.write(JSON.stringify({ command : 'get series info', url: 'https://www.lostfilm.tv/browse.php?cat=168'}));
     console.log('\n\t------------\n\n');
-}, 12000);
+}, 2000);
 
 
 setTimeout(function () {
     client.write(JSON.stringify({ command : 'get updates', siteName: 'lostfilm', count: 1}));
     console.log('\n\t------------\n\n');
-}, 16000);
+}, 6000);
 
 
 setTimeout(function () {
     client.write(JSON.stringify({ command : 'get all series', siteName: 'lostfilm'}));
     console.log('\n\t------------\n\n');
-}, 110000);
+}, 10000);
 
 
 
