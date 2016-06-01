@@ -177,7 +177,11 @@ function executeRequestCommand(data, callback) {
         }
     };
 
-    commands[data.command.toLowerCase()]; 
+    var fn = commands[data.command.toLowerCase()];
+
+    if (fn) {
+        fn();
+    }
 }
 
 
