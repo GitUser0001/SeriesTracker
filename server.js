@@ -135,7 +135,53 @@ function jsonTryParse(dataJson) {
     }
 }
 
-function executeRequestCommand(data, callback) { 
+
+
+
+
+function executeRequestCommand(data, callback) {
+    var commands = {
+        'get series info': function () {
+            if (data.url){
+                parser.parse(data.url, callback);
+            }
+        },
+        'get updates': function () {
+            if (data.siteName && data.count){
+                parser.getUpdates(data.siteName, data.count, callback);
+            }
+        },
+        'get all series': function () {
+            if (data.siteName){
+                parser.getSeriesList(data.siteName, callback);
+            }
+        },
+        'add series to user': function () {
+            if (data.url) {
+                // not implement
+            }
+        },
+        'remove series from user': function () {
+            if (data.url) {
+                // not implement
+            }
+        },
+        'get user\'s favorite list': function () {
+            // not implement
+        },
+        'add/update series in db': function () {
+            // not implement
+        },
+        'get all series from db': function () {
+            // not implement
+        }
+    };
+
+    commands[data.command.toLowerCase()]; 
+}
+
+
+function executeRequestCommand1(data, callback) {
     switch (data.command.toLowerCase()) {
 
         // PARSE WEB SITE
